@@ -1,9 +1,9 @@
-# Game Wheel
+# Vice UI Wheel
 
 A game-style radial selection wheel for React. Aim with the cursor or arrow keys, confirm with a click or Enter.
 Any items, any icons. No dependencies besides React.
 
-![Game Wheel demo](media/demo.gif)
+![Vice UI Wheel demo](media/demo.gif)
 
 ## Install
 Copy `GameWheel.tsx` and `game-wheel.css` into your project.
