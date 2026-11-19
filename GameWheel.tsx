@@ -37,6 +37,9 @@ export function GameWheel({ items, value, defaultValue, onChange, onAim, size = 
   const selected = value ?? inner;
   const [aim, setAim] = React.useState(Math.max(0, items.findIndex((i) => i.id === selected)));
   const [pulse, setPulse] = React.useState(0);
+  // the aim highlight rotates (shortest way round) instead of jumping between slots
+  const rot = React.useRef(aim * (360 / Math.max(items.length, 1)));
+  const lastAim = React.useRef(aim);
   const id = React.useId(), ref = React.useRef<HTMLDivElement>(null);
   const n = items.length, span = 360 / n, gap = n > 1 ? 1.6 : 0;
 
@@ -66,6 +69,10 @@ export function GameWheel({ items, value, defaultValue, onChange, onAim, size = 
     ...(t.slotActive && { '--gw-slot-active': t.slotActive }), ...(t.stroke && { '--gw-stroke': t.stroke }), ...(t.glow && { '--gw-glow': t.glow }),
     ...(t.text && { '--gw-text': t.text }), ...(t.muted && { '--gw-muted': t.muted }) } as React.CSSProperties;
   const focus = items[aim];
+  if (lastAim.current !== aim) {
+    const d = ((aim - lastAim.current + n + n / 2) % n) - n / 2;
+    rot.current += d * span; lastAim.current = aim;
+  }
 
   return (
     <div ref={ref} className={['gw', className].filter(Boolean).join(' ')} style={vars}
@@ -77,6 +84,10 @@ export function GameWheel({ items, value, defaultValue, onChange, onAim, size = 
           return <path key={it.id} className="gw__slot" style={{ ['--i' as string]: i }} d={sector(a + gap / 2, a + span - gap / 2, 46, 98)}
             data-aim={i === aim || undefined} data-active={it.id === selected || undefined} data-disabled={it.disabled || undefined} />;
         })}
+        <g className="gw__aim" style={{ transform: `rotate(${rot.current}deg)` }}>
+          <path className="gw__aimarc" d={sector(-90 - span / 2 + gap / 2, -90 + span / 2 - gap / 2, 46, 99)} />
+          <path className="gw__needle" d="M0 -55 L5.5 -47.5 L-5.5 -47.5 Z" />
+        </g>
       </svg>
       <ul className="gw__list" role="listbox" aria-label={label} tabIndex={0} onKeyDown={onKey} aria-activedescendant={`${id}-${aim}`}>
         {items.map((it, i) => {
